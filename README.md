@@ -5,10 +5,10 @@ Official golang implementation of the M.I.T Chain protocol.
 Automated builds are available for stable releases and the unstable master branch.
 Binary archives will be published on official website soon..
 
-[Running MIT Test Network](#using-mit-test-network)
-[Quickstart Guide](#quickstart-guide)
-  [Setting up a Wallet](#creating-a-new-wallet)
-  [Sending MIT to Another Wallet](#sending-mit-to-another-wallet)
+* [Running MIT Test Network](#using-mit-test-network)
+* [Quickstart Guide](#quickstart-guide)
+  * [Setting up a Wallet](#creating-a-new-wallet)
+  * [Sending MIT to Another Wallet](#sending-mit-to-another-wallet)
 
 # Building the source
 
