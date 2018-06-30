@@ -23,60 +23,60 @@ var (
 )
 
 const (
-	GasLimitBoundDivisor uint64 = 1024    // The bound divisor of the gas limit, used in update calculations.
-	MinGasLimit          uint64 = 5000    // Minimum the gas limit may ever be.
-	GenesisGasLimit      uint64 = 4712388 // Gas limit of the Genesis block.
+	GasLimitBoundDivisor uint64 = 2048    // 1024The bound divisor of the gas limit, used in update calculations.
+	MinGasLimit          uint64 = 10000    // 5000Minimum the gas limit may ever be.
+	GenesisGasLimit      uint64 = 9424776 // 4712388Gas limit of the Genesis block.
 
 	MaximumExtraDataSize  uint64 = 32    // Maximum size extra data may be after Genesis.
 	ExpByteGas            uint64 = 10    // Times ceil(log256(exponent)) for the EXP instruction.
 	SloadGas              uint64 = 50    // Multiplied by the number of 32-byte words that are copied (round up) for any *COPY operation and added.
-	CallValueTransferGas  uint64 = 9000  // Paid for CALL when the value transfer is non-zero.
-	CallNewAccountGas     uint64 = 25000 // Paid for CALL when the destination address didn't exist prior.
-	TxGas                 uint64 = 21000 // Per transaction not creating a contract. NOTE: Not payable on data of calls between transactions.
-	TxGasContractCreation uint64 = 53000 // Per transaction that creates a contract. NOTE: Not payable on data of calls between transactions.
-	TxDataZeroGas         uint64 = 4     // Per byte of data attached to a transaction that equals zero. NOTE: Not payable on data of calls between transactions.
+	CallValueTransferGas  uint64 = 18000  // 9000Paid for CALL when the value transfer is non-zero.
+	CallNewAccountGas     uint64 = 50000 // 25000Paid for CALL when the destination address didn't exist prior.
+	TxGas                 uint64 = 42000 // 21000Per transaction not creating a contract. NOTE: Not payable on data of calls between transactions.
+	TxGasContractCreation uint64 = 106000 // 53000Per transaction that creates a contract. NOTE: Not payable on data of calls between transactions.
+	TxDataZeroGas         uint64 = 8     // 4Per byte of data attached to a transaction that equals zero. NOTE: Not payable on data of calls between transactions.
 	QuadCoeffDiv          uint64 = 512   // Divisor for the quadratic particle of the memory cost equation.
-	SstoreSetGas          uint64 = 20000 // Once per SLOAD operation.
-	LogDataGas            uint64 = 8     // Per byte in a LOG* operation's data.
+	SstoreSetGas          uint64 = 40000 // 20000Once per SLOAD operation.
+	LogDataGas            uint64 = 16     // 8Per byte in a LOG* operation's data.
 	CallStipend           uint64 = 2300  // Free gas given at beginning of call.
 
-	Sha3Gas          uint64 = 30    // Once per SHA3 operation.
-	Sha3WordGas      uint64 = 6     // Once per word of the SHA3 operation's data.
-	SstoreResetGas   uint64 = 5000  // Once per SSTORE operation if the zeroness changes from zero.
-	SstoreClearGas   uint64 = 5000  // Once per SSTORE operation if the zeroness doesn't change.
-	SstoreRefundGas  uint64 = 15000 // Once per SSTORE operation if the zeroness changes to zero.
-	JumpdestGas      uint64 = 1     // Refunded gas, once per SSTORE operation if the zeroness changes to zero.
+	Sha3Gas          uint64 = 60    // 30Once per SHA3 operation.
+	Sha3WordGas      uint64 = 12     // 6Once per word of the SHA3 operation's data.
+	SstoreResetGas   uint64 = 10000  // 5000Once per SSTORE operation if the zeroness changes from zero.
+	SstoreClearGas   uint64 = 10000  // 5000Once per SSTORE operation if the zeroness doesn't change.
+	SstoreRefundGas  uint64 = 30000 // 15000Once per SSTORE operation if the zeroness changes to zero.
+	JumpdestGas      uint64 = 2     // 1Refunded gas, once per SSTORE operation if the zeroness changes to zero.
 	EpochDuration    uint64 = 30000 // Duration between proof-of-work epochs.
 	CallGas          uint64 = 40    // Once per CALL operation & message call transaction.
-	CreateDataGas    uint64 = 200   //
+	CreateDataGas    uint64 = 400   // 200
 	CallCreateDepth  uint64 = 1024  // Maximum depth of call/create stack.
 	ExpGas           uint64 = 10    // Once per EXP instruction
-	LogGas           uint64 = 375   // Per LOG* operation.
-	CopyGas          uint64 = 3     //
+	LogGas           uint64 = 750   // 375Per LOG* operation.
+	CopyGas          uint64 = 6     // 3
 	StackLimit       uint64 = 1024  // Maximum size of VM stack allowed.
 	TierStepGas      uint64 = 0     // Once per operation, for a selection of them.
-	LogTopicGas      uint64 = 375   // Multiplied by the * of the LOG*, per LOG transaction. e.g. LOG0 incurs 0 * c_txLogTopicGas, LOG4 incurs 4 * c_txLogTopicGas.
-	CreateGas        uint64 = 32000 // Once per CREATE operation & contract-creation transaction.
-	SuicideRefundGas uint64 = 24000 // Refunded following a suicide operation.
-	MemoryGas        uint64 = 3     // Times the address of the (highest referenced byte in memory + 1). NOTE: referencing happens on read, write and in instructions such as RETURN and CALL.
-	TxDataNonZeroGas uint64 = 68    // Per byte of data attached to a transaction that is not equal to zero. NOTE: Not payable on data of calls between transactions.
+	LogTopicGas      uint64 = 750   // 375Multiplied by the * of the LOG*, per LOG transaction. e.g. LOG0 incurs 0 * c_txLogTopicGas, LOG4 incurs 4 * c_txLogTopicGas.
+	CreateGas        uint64 = 64000 // 32000Once per CREATE operation & contract-creation transaction.
+	SuicideRefundGas uint64 = 48000 // 24000Refunded following a suicide operation.
+	MemoryGas        uint64 = 6     // 3Times the address of the (highest referenced byte in memory + 1). NOTE: referencing happens on read, write and in instructions such as RETURN and CALL.
+	TxDataNonZeroGas uint64 = 136    // 68Per byte of data attached to a transaction that is not equal to zero. NOTE: Not payable on data of calls between transactions.
 
 	MaxCodeSize = 24576 // Maximum bytecode to permit for a contract
 
 	// Precompiled contract gas prices
 
-	EcrecoverGas            uint64 = 3000   // Elliptic curve sender recovery gas price
-	Sha256BaseGas           uint64 = 60     // Base price for a SHA256 operation
-	Sha256PerWordGas        uint64 = 12     // Per-word price for a SHA256 operation
-	Ripemd160BaseGas        uint64 = 600    // Base price for a RIPEMD160 operation
-	Ripemd160PerWordGas     uint64 = 120    // Per-word price for a RIPEMD160 operation
-	IdentityBaseGas         uint64 = 15     // Base price for a data copy operation
-	IdentityPerWordGas      uint64 = 3      // Per-work price for a data copy operation
+	EcrecoverGas            uint64 = 6000   // 3000Elliptic curve sender recovery gas price
+	Sha256BaseGas           uint64 = 120     // 60Base price for a SHA256 operation
+	Sha256PerWordGas        uint64 = 24     // 12Per-word price for a SHA256 operation
+	Ripemd160BaseGas        uint64 = 1200    // 600Base price for a RIPEMD160 operation
+	Ripemd160PerWordGas     uint64 = 240    // 120Per-word price for a RIPEMD160 operation
+	IdentityBaseGas         uint64 = 30     // 15Base price for a data copy operation
+	IdentityPerWordGas      uint64 = 6      // 3Per-work price for a data copy operation
 	ModExpQuadCoeffDiv      uint64 = 20     // Divisor for the quadratic particle of the big int modular exponentiation
-	Bn256AddGas             uint64 = 500    // Gas needed for an elliptic curve addition
-	Bn256ScalarMulGas       uint64 = 40000  // Gas needed for an elliptic curve scalar multiplication
-	Bn256PairingBaseGas     uint64 = 100000 // Base price for an elliptic curve pairing check
-	Bn256PairingPerPointGas uint64 = 80000  // Per-point price for an elliptic curve pairing check
+	Bn256AddGas             uint64 = 1000    // 500Gas needed for an elliptic curve addition
+	Bn256ScalarMulGas       uint64 = 80000  // 40000Gas needed for an elliptic curve scalar multiplication
+	Bn256PairingBaseGas     uint64 = 200000 // 100000Base price for an elliptic curve pairing check
+	Bn256PairingPerPointGas uint64 = 160000  // 80000Per-point price for an elliptic curve pairing check
 )
 
 var (

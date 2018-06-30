@@ -29,7 +29,7 @@ import (
 	"github.com/timenewbank/go-mit/rpc"
 )
 
-var maxPrice = big.NewInt(500 * params.Shannon)
+var maxPrice = big.NewInt(500000 * params.Shannon)//500
 
 type Config struct {
 	Blocks     int

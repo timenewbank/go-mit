@@ -47,6 +47,8 @@ type ChainReader interface {
 
 	// GetBlock retrieves a block from the database by hash and number.
 	GetBlock(hash common.Hash, number uint64) *types.Block
+	//get balance
+	GetBalance(root common.Hash,addr common.Address) *big.Int
 }
 
 // Engine is an algorithm agnostic consensus engine.
@@ -89,6 +91,8 @@ type Engine interface {
 	// Seal generates a new block for the given input block with the local miner's
 	// seal place on top.
 	Seal(chain ChainReader, block *types.Block, stop <-chan struct{}) (*types.Block, error)
+	//the new seal of the mit miner
+	NewSeal(chain ChainReader,block *types.Block, stop <-chan struct{},stateDb  *state.StateDB) (*types.Block, error)
 
 	// CalcDifficulty is the difficulty adjustment algorithm. It returns the difficulty
 	// that a new block should have.

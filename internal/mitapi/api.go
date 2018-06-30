@@ -46,7 +46,7 @@ import (
 )
 
 const (
-	defaultGasPrice = 50 * params.Shannon
+	defaultGasPrice = 50000 * params.Shannon//50
 )
 
 // PublicMitAPI provides an API to access Mit related information.

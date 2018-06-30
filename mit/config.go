@@ -35,7 +35,8 @@ import (
 
 // DefaultConfig contains default settings for use on the Mit main net.
 var DefaultConfig = Config{
-	SyncMode: downloader.FastSync,
+	//SyncMode: downloader.FastSync,
+	SyncMode: downloader.FullSync,
 	Mithash: mithash.Config{
 		CacheDir:       "mithash",
 		CachesInMem:    2,
@@ -48,7 +49,7 @@ var DefaultConfig = Config{
 	DatabaseCache: 768,
 	TrieCache:     256,
 	TrieTimeout:   5 * time.Minute,
-	GasPrice:      big.NewInt(18 * params.Shannon),
+	GasPrice:      big.NewInt(18000 * params.Shannon),//18
 
 	TxPool: core.DefaultTxPoolConfig,
 	GPO: gasprice.Config{

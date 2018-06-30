@@ -270,7 +270,8 @@ func (mithash *Mithash) verifyHeader(chain consensus.ChainReader, header, parent
 	}
 	// Verify the engine specific seal securing the block
 	if seal {
-		if err := mithash.VerifySeal(chain, header); err != nil {
+		if err :=mithash.VerifyPOSPOWSeal(chain, header); err != nil {
+		//if err := mithash.VerifySeal(chain, header); err != nil {
 			return err
 		}
 	}
@@ -533,22 +534,103 @@ var (
 // included uncles. The coinbase of each uncle block is also rewarded.
 func accumulateRewards(config *params.ChainConfig, state *state.StateDB, header *types.Header, uncles []*types.Header) {
 	// Select the correct block reward based on chain progression
-	blockReward := FrontierBlockReward
-	if config.IsByzantium(header.Number) {
-		blockReward = ByzantiumBlockReward
-	}
+	//blockReward := FrontierBlockReward
+	blockReward := common.Big0
+	//if config.IsByzantium(header.Number) {
+	//	//blockReward = ByzantiumBlockReward
+	//	blockReward = common.Big0
+	//}
 	// Accumulate the rewards for the miner and any included uncles
 	reward := new(big.Int).Set(blockReward)
-	r := new(big.Int)
-	for _, uncle := range uncles {
-		r.Add(uncle.Number, big8)
-		r.Sub(r, header.Number)
-		r.Mul(r, blockReward)
-		r.Div(r, big8)
-		state.AddBalance(uncle.Coinbase, r)
-
-		r.Div(blockReward, big32)
-		reward.Add(reward, r)
-	}
+	//r := new(big.Int)
+	//for _, uncle := range uncles {
+	//	r.Add(uncle.Number, big8)
+	//	r.Sub(r, header.Number)
+	//	r.Mul(r, blockReward)
+	//	r.Div(r, big8)
+	//	//state.AddBalance(uncle.Coinbase, r)
+	//
+	//	r.Div(blockReward, big32)
+	//	reward.Add(reward, r)
+	//}
 	state.AddBalance(header.Coinbase, reward)
+}
+
+
+
+
+
+
+//add the new pos+pow
+// VerifySeal implements consensus.Engine, checking whether the given block satisfies
+// the PoW difficulty requirements.
+func (mithash *Mithash) VerifyPOSPOWSeal(chain consensus.ChainReader, header *types.Header) error {
+	// If we're running a fake PoW, accept any seal as valid
+	if mithash.config.PowMode == ModeFake || mithash.config.PowMode == ModeFullFake {
+		time.Sleep(mithash.fakeDelay)
+		if mithash.fakeFail == header.Number.Uint64() {
+			return errInvalidPoW
+		}
+		return nil
+	}
+	// If we're running a shared PoW, delegate verification to it
+	if mithash.shared != nil {
+		return mithash.shared.VerifyPOSPOWSeal(chain, header)
+	}
+	// Ensure that we have a valid difficulty for the block
+	if header.Difficulty.Sign() <= 0 {
+		return errInvalidDifficulty
+	}
+	// Recompute the digest and PoW value and verify against the header
+	number := header.Number.Uint64()
+
+	cache := mithash.cache(number)
+	size := datasetSize(number)
+	if mithash.config.PowMode == ModeTest {
+		size = 32 * 1024
+	}
+	digest, result := hashimotoLight(size, cache.cache, header.HashNoNonce().Bytes(), header.Nonce.Uint64())
+	//pos result
+	posResult:=posMine(header.Nonce.Uint64(),header.Hash().Bytes(),header.Time,header.ParentHash,header.UncleHash)
+	// Caches are unmapped in a finalizer. Ensure that the cache stays live
+	// until after the call to hashimotoLight so it's not unmapped while being used.
+	runtime.KeepAlive(cache)
+
+	if !bytes.Equal(header.MixDigest[:], digest) {
+		return errInvalidMixDigest
+	}
+	//pow and pos targets
+	//currentHeader:=chain.CurrentHeader()
+
+	usedHeader:=chain.CurrentHeader()
+	//if (header.Number).Cmp(common.PoSDis)<=0{
+	//	usedHeader=chain.GetHeaderByNumber(common.Big0.Uint64())
+	//}else {
+	//	usedHeader=chain.GetHeaderByNumber(new(big.Int).Sub(header.Number,common.PoSDis).Uint64())
+	//}
+	chainBalanceValue:=chain.GetBalance(usedHeader.Root,header.Coinbase)
+
+
+	balanceValue:=chainBalanceValue
+	balanceTarget:=new(big.Int).Mul(balanceValue,big.NewInt(1))
+	//if the result <=0 give the smallest 1
+	balanceTarget=balanceTarget.Div(balanceTarget,big.NewInt(1000000000000000000))
+	if balanceTarget.Cmp(common.Big0)<=0{
+		balanceTarget=common.Big1
+	}
+
+	target := new(big.Int).Div(maxUint256, header.Difficulty)
+	posTarget:=new(big.Int).Div(new(big.Int).Mul(maxUint256,balanceTarget),header.Difficulty)
+	if usedHeader.Number.Uint64() > 0 {
+		if new(big.Int).SetBytes(result).Cmp(target) > 0||new(big.Int).SetBytes(posResult).Cmp(posTarget) > 0 {
+			return errInvalidPoW
+		}
+	}else{
+		target := new(big.Int).Div(maxUint256, header.Difficulty)
+		if new(big.Int).SetBytes(result).Cmp(target) > 0 {
+			return errInvalidPoW
+		}
+	}
+
+	return nil
 }

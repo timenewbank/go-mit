@@ -1562,3 +1562,17 @@ func (bc *BlockChain) SubscribeChainSideEvent(ch chan<- ChainSideEvent) event.Su
 func (bc *BlockChain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
 	return bc.scope.Track(bc.logsFeed.Subscribe(ch))
 }
+
+
+
+//添加新方法--getBalance
+func (bc *BlockChain) GetBalance(root common.Hash,addr common.Address) *big.Int {
+	state,error:=state.New(root,bc.stateCache)
+	if error !=nil{
+		fmt.Println("创建state出错！！！！")
+		return common.Big0
+	}
+	return state.GetBalance(addr)
+}
+
+

@@ -1,16 +1,11 @@
-# Go M.I.T Chain
+## Go M.I.T Chain
 
 Official golang implementation of the M.I.T Chain protocol.
 
 Automated builds are available for stable releases and the unstable master branch.
 Binary archives will be published on official website soon..
 
-* [Running MIT Test Network](#using-mit-test-network)
-* [Quickstart Guide](#quickstart-guide)
-  * [Setting up a Wallet](#creating-a-new-wallet)
-  * [Sending MIT to Another Wallet](#sending-mit-to-another-wallet)
-
-# Building the source
+## Building the source
 
 For prerequisites and detailed build instructions please read the
 Installation Instructions
@@ -28,13 +23,44 @@ or, to build the full suite of utilities:
 
     make all
 
-# Running MIT Testnet
+## Running Mit
+
+Going through all the possible command line flags is out of scope here,but we've
+enumerated a few common parameter combos to get you up to speed quickly on how you can run your
+own Mit instance.
+
+### Full node on the main Mit network
+
+By far the most common scenario is people wanting to simply interact with the Mit network:
+create accounts; transfer funds; deploy and interact with contracts. For this particular use-case
+the user doesn't care about years-old historical data, so we can full-sync quickly to the current
+state of the network. To do so:
+
+```
+$ mit console
+```
+#### Running a miner
+
+Currently our main network is based on POW+POS. So the miners can only mining after getting permission from us.
+
+This command will:
+
+ * Start mit in full sync mode (default), causing it to
+   download more data in exchange for avoiding processing the entire history of the Mit network,
+   which is very CPU intensive.
+ * Start up Mit's built-in interactive JavaScript console,
+   (via the trailing `console` subcommand) through which you can invoke all official `web3` methods
+   as well as Mit's own management APIs.
+   This too is optional and if you leave it out you can always attach to an already running Mit instance
+   with `mit attach`.
+
+## Running mit testnet
 
 Going through all the possible command line flags is out of scope here , but we've
 enumerated a few common parameter combos to get you up to speed quickly on how you can run your
 own Mit instance.
 
-## Running Full node using MIT
+### Full node on the Mit testnet
 
 By far the most common scenario is people wanting to simply interact with the Mit network:
 create accounts; transfer funds; deploy and interact with contracts. For this particular use-case
@@ -56,7 +82,7 @@ This command will:
    This too is optional and if you leave it out you can always attach to an already running Mit instance
    with `mit attach`.
 
-## Using MIT Test Network
+### Full node on the Mit test network
 
 Transitioning towards developers, if you'd like to play around with creating Mit time contracts, you
 almost certainly would like to do that without any real money involved until you get the hang of the
@@ -77,7 +103,7 @@ Specifying the `--testnet` flag however will reconfigure your Mit instance a bit
 
 *Note: Now we have provided the testnet for you. The mainnet will be launched in the near future. Please make sure that you always using two separate accounts for play-money and real-money respectively.*
 
-## Starting up your member nodes
+#### Starting up your member nodes
 
 With the bootnode operational and externally reachable (you can try `telnet <ip> <port>` to ensure
 it's indeed reachable), start every subsequent Mit node pointed to the bootnode for peer discovery
@@ -90,45 +116,11 @@ $ mit --datadir=path/to/custom/data/folder --bootnodes=<bootnode-enode-url-from-
 *Note: Since your network will be completely cut off from the main and test networks, you'll also
 need to configure a miner to process transactions and create new blocks for you.*
 
-## Running a miner
+#### Running a miner
 
 Currently our testnest is based on POA(Proof-of-Authority). So the miners can only mining after getting permission from us.
 
-# Quickstart Guide
-## Creating a new wallet
-
-Once you have the testnet up and running on your machine.  You will probably want to set up a new wallet.  To do so you will use the following command:
-
-```
-personal.newAccount()
-```
-
-*Note: This will ask you to create a passcode.  Make sure to make a note of this code for future use with your wallet.*
-
-Once you set your passphrase you should see your new wallet echoed out in the console.
-
-## Creating a new wallet
-To check the balance of a wallet use the following command:
-
-```
-mit.getBalance('WALLET_ADDRESS_STRING')
-```
-
-The given wallet's balance will not be output into the console.
-
-## Sending MIT to Another Wallet
-First you must make sure that your wallet is unlocked.  To do this To send coins to a wallet you will use the following command where `WALLET_ADDRESS_AS_STRING` is the recievers wallet address and `VALUE` is the amount to send as an float.
-
-```
-mit.sendTransaction({from:mit.coinbase,to:"WALLET_ADDRESS_AS_STRING",value:web3.toWei(VALUE,"tnb")})
-```
-
-This will send the coins immediately.  You can review the transaction on the [block explorer](http://testnet.timenewbank.com).
-
-
-
-
-# Contribution
+## Contribution
 
 Thank you for considering to help out with the source code! We welcome contributions from
 anyone on the internet, and are grateful for even the smallest of fixes!

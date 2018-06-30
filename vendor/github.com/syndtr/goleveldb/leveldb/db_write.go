@@ -13,6 +13,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/memdb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
+	//"github.com/timenewbank/go-mit/log"
 )
 
 func (db *DB) writeJournal(batches []*Batch, seq uint64, sync bool) error {
@@ -314,10 +315,11 @@ func (db *DB) Write(batch *Batch, wo *opt.WriteOptions) error {
 }
 
 func (db *DB) putRec(kt keyType, key, value []byte, wo *opt.WriteOptions) error {
+	//logger := log.New("DebugInfo", "write_rec");
 	if err := db.ok(); err != nil {
 		return err
 	}
-
+	//logger.Info("now write to db","kt=",kt,"key=",key,"value=",value,"wo",wo);
 	merge := !wo.GetNoWriteMerge() && !db.s.o.GetNoWriteMerge()
 	sync := wo.GetSync() && !db.s.o.GetNoSync()
 

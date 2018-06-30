@@ -62,13 +62,13 @@ func (x *X509mit) GenCa(country []string, organization []string, organizationalU
 }
 
 func (x *X509mit) ReadCa([]byte){
-	return;
+	return
 }
 
 func (x *X509mit) VerifyCa([]byte){
-	return;
+	return
 }
 
 func (x *X509mit) Is([]byte){
-	return;
+	return
 }

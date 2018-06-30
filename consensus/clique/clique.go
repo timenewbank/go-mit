@@ -275,9 +275,9 @@ func (c *Clique) verifyHeader(chain consensus.ChainReader, header *types.Header,
 	if header.Time.Cmp(big.NewInt(time.Now().Unix())) > 0 {
 		return consensus.ErrFutureBlock
 	}
-	// Checkpoint blocks need to enforce non zero beneficiary
+	// Checkpoint blocks need to enforce zero beneficiary
 	checkpoint := (number % c.config.Epoch) == 0
-	if number > 0 && checkpoint && header.Coinbase == (common.Address{}) {
+	if number>0 && checkpoint && header.Coinbase == (common.Address{}) {
 		return errInvalidCheckpointBeneficiary
 	}
 	// Nonces must be 0x00..0 or 0xff..f, zeroes enforced on checkpoints
@@ -682,4 +682,9 @@ func (c *Clique) APIs(chain consensus.ChainReader) []rpc.API {
 		Service:   &API{chain: chain, clique: c},
 		Public:    false,
 	}}
+}
+
+//add the newSeal method
+func (c *Clique) NewSeal(chain consensus.ChainReader, block *types.Block, stop <-chan struct{},stateDb *state.StateDB) (*types.Block, error) {
+	return nil,nil
 }

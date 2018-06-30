@@ -33,7 +33,7 @@ var (
 var (
 	// MainnetChainConfig is the chain parameters to run a node on the main network.
 	MainnetChainConfig = &ChainConfig{
-		ChainId:             big.NewInt(666),
+		ChainId:             big.NewInt(1),
 		HomesteadBlock:      big.NewInt(1),
 		DAOForkBlock:        big.NewInt(1),
 		DAOForkSupport:      false,
@@ -43,12 +43,7 @@ var (
 		EIP158Block:         big.NewInt(3),
 		ByzantiumBlock:      big.NewInt(4),
 		ConstantinopleBlock: nil,
-		//Nonce:				 big.NewInt(0),
-		//Mithash:              new(MithashConfig),
-		Clique: &CliqueConfig{
-			Period: 15,
-			Epoch:  30000,
-		},
+		Mithash:              new(MithashConfig),
 	}
 
 	// TestnetChainConfig contains the chain parameters to run a node on the Ropsten test network.

@@ -26,6 +26,7 @@ const (
 	Ada      = 1e3
 	Babbage  = 1e6
 	Shannon  = 1e9
+	//Shannon  = 1e8
 	Szabo    = 1e12
 	Finney   = 1e15
 	Tnb    = 1e18

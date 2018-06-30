@@ -33,6 +33,7 @@ import (
 	"github.com/timenewbank/go-mit/log"
 	"github.com/timenewbank/go-mit/params"
 	"github.com/hashicorp/golang-lru"
+	"github.com/timenewbank/go-mit/core/state"
 )
 
 const (
@@ -50,6 +51,7 @@ type HeaderChain struct {
 	config *params.ChainConfig
 
 	chainDb       mitdb.Database
+	stateCache   state.Database // State database to reuse between imports (contains state cache)
 	genesisHeader *types.Header
 
 	currentHeader     atomic.Value // Current head of the header chain (may be above the block chain!)
@@ -83,6 +85,7 @@ func NewHeaderChain(chainDb mitdb.Database, config *params.ChainConfig, engine c
 	hc := &HeaderChain{
 		config:        config,
 		chainDb:       chainDb,
+		stateCache:   state.NewDatabase(chainDb),
 		headerCache:   headerCache,
 		tdCache:       tdCache,
 		numberCache:   numberCache,
@@ -455,3 +458,16 @@ func (hc *HeaderChain) Engine() consensus.Engine { return hc.engine }
 func (hc *HeaderChain) GetBlock(hash common.Hash, number uint64) *types.Block {
 	return nil
 }
+
+
+//getBalance
+func (hc *HeaderChain) GetBalance(root common.Hash,addr common.Address) *big.Int {
+	state,error:=state.New(root,hc.stateCache)
+	if error !=nil{
+		return common.Big0
+	}
+	return state.GetBalance(addr)
+}
+
+
+

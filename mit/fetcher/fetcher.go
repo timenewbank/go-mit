@@ -27,6 +27,7 @@ import (
 	"github.com/timenewbank/go-mit/core/types"
 	"github.com/timenewbank/go-mit/log"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
+	"fmt"
 )
 
 const (
@@ -310,6 +311,7 @@ func (f *Fetcher) loop() {
 				f.forgetBlock(hash)
 				continue
 			}
+			fmt.Println("current opreate opnumber-------》",op.block.Number())
 			f.insert(op.origin, op.block)
 		}
 		// Wait for an outside event to occur

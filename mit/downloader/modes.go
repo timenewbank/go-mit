@@ -21,10 +21,11 @@ import "fmt"
 // SyncMode represents the synchronisation mode of the downloader.
 type SyncMode int
 
+//only full model support PoW+PoS consensus
 const (
 	FullSync  SyncMode = iota // Synchronise the entire blockchain history from full blocks
-	FastSync                  // Quickly download the headers, full sync only at the chain head
-	LightSync                 // Download only the headers and terminate afterwards
+	FastSync   // Quickly download the headers, full sync only at the chain head
+	LightSync  // Download only the headers and terminate afterwards
 )
 
 func (mode SyncMode) IsValid() bool {

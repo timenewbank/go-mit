@@ -25,7 +25,10 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/storage"
 	"github.com/syndtr/goleveldb/leveldb/table"
 	"github.com/syndtr/goleveldb/leveldb/util"
+	//"github.com/timenewbank/go-mit/log"
 )
+
+
 
 // DB is a LevelDB database.
 type DB struct {
@@ -834,6 +837,9 @@ func (db *DB) has(auxm *memdb.DB, auxt tFiles, key []byte, seq uint64, ro *opt.R
 // of the returned slice.
 // It is safe to modify the contents of the argument after Get returns.
 func (db *DB) Get(key []byte, ro *opt.ReadOptions) (value []byte, err error) {
+	//fmt.Printf("key is %v \n", key);
+	//logger := log.New("DebugInfo", "key_value")
+
 	err = db.ok()
 	if err != nil {
 		return
@@ -841,7 +847,9 @@ func (db *DB) Get(key []byte, ro *opt.ReadOptions) (value []byte, err error) {
 
 	se := db.acquireSnapshot()
 	defer db.releaseSnapshot(se)
-	return db.get(nil, nil, key, se.seq, ro)
+	result,err := db.get(nil, nil, key, se.seq, ro);
+	//TODO : logger.Info("Get value from db","key=",key,"se.seq=",se.seq,"ro=",ro,"result=",result);
+	return result,err;
 }
 
 // Has returns true if the DB does contains the given key.
@@ -852,9 +860,10 @@ func (db *DB) Has(key []byte, ro *opt.ReadOptions) (ret bool, err error) {
 	if err != nil {
 		return
 	}
-
+	//logger := log.New("DebugInfo", "key_value")
 	se := db.acquireSnapshot()
 	defer db.releaseSnapshot(se)
+	//logger.Info("whether has key","key=",key,"se.seq=",se.seq,"ro=",ro);
 	return db.has(nil, nil, key, se.seq, ro)
 }
 

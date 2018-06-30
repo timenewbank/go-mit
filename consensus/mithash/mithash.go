@@ -111,6 +111,7 @@ func memoryMapAndGenerate(path string, size uint64, generator func(buffer []uint
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return nil, nil, nil, err
 	}
+
 	// Create a huge temporary empty file to fill with data
 	temp := path + "." + strconv.Itoa(rand.Int())
 
