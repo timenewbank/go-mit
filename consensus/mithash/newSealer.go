@@ -146,7 +146,7 @@ search:
 			}
 			// Compute the PoW value of this nonce
 			digest, result := hashimotoFull(dataset.dataset, hash, nonce)
-			//添加pos计算结果
+			//Add PoS calculation result
 			posResult:=posMine(nonce,hash,header.Time,header.ParentHash,header.UncleHash)
 			if new(big.Int).SetBytes(result).Cmp(target) <= 0 &&new(big.Int).SetBytes(posResult).Cmp(posTarget) <= 0{
 				// Correct nonce found, create a new header with it
