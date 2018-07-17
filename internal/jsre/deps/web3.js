@@ -926,7 +926,7 @@ var SolidityParam = require('./param');
  * @returns {SolidityParam}
  */
 var formatInputInt = function (value) {
-    BigNumber.config(c.ETH_BIGNUMBER_ROUNDING_MODE);
+    BigNumber.config(c.MIT_BIGNUMBER_ROUNDING_MODE);
     var result = utils.padLeft(utils.toTwosComplement(value).toString(16), 64);
     return new SolidityParam(result);
 };
@@ -1758,10 +1758,10 @@ if (typeof XMLHttpRequest === 'undefined') {
  */
 
 
-/// required to define ETH_BIGNUMBER_ROUNDING_MODE
+/// required to define MIT_BIGNUMBER_ROUNDING_MODE
 var BigNumber = require('bignumber.js');
 
-var ETH_UNITS = [
+var MIT_UNITS = [
     'wei',
     'kwei',
     'Mwei',
@@ -1792,11 +1792,11 @@ var ETH_UNITS = [
 ];
 
 module.exports = {
-    ETH_PADDING: 32,
-    ETH_SIGNATURE_LENGTH: 4,
-    ETH_UNITS: ETH_UNITS,
-    ETH_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
-    ETH_POLLING_TIMEOUT: 1000/2,
+    MIT_PADDING: 32,
+    MIT_SIGNATURE_LENGTH: 4,
+    MIT_UNITS: MIT_UNITS,
+    MIT_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
+    MIT_POLLING_TIMEOUT: 1000/2,
     defaultBlock: 'latest',
     defaultAccount: undefined
 };
@@ -2700,7 +2700,7 @@ AllSolidityEvents.prototype.decode = function (data) {
     var event = new SolidityEvent(this._requestManager, match, this._address);
     return event.decode(data);
 };
-
+//2018-07-03
 AllSolidityEvents.prototype.execute = function (options, callback) {
 
     if (utils.isFunction(arguments[arguments.length - 1])) {
@@ -2711,7 +2711,7 @@ AllSolidityEvents.prototype.execute = function (options, callback) {
 
     var o = this.encode(options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'eth', this._requestManager, watches.mit(), formatter, callback);
+    return new Filter(o, 'mit', this._requestManager, watches.mit(), formatter, callback);
 };
 
 AllSolidityEvents.prototype.attachToContract = function (contract) {
@@ -3336,7 +3336,7 @@ SolidityEvent.prototype.execute = function (indexed, options, callback) {
 
     var o = this.encode(indexed, options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'eth', this._requestManager, watches.mit(), formatter, callback);
+    return new Filter(o, 'mit', this._requestManager, watches.mit(), formatter, callback);
 };
 
 /**
@@ -3470,7 +3470,7 @@ var getOptions = function (options, type) {
 
 
     switch(type) {
-        case 'eth':
+        case 'mit':
 
             // make sure topics, get converted to hex
             options.topics = options.topics || [];
@@ -4535,7 +4535,7 @@ Iban.fromBban = function (bban) {
  * @return {Iban} the IBAN object
  */
 Iban.createIndirect = function (options) {
-    return Iban.fromBban('ETH' + options.institution + options.identifier);
+    return Iban.fromBban('MIT' + options.institution + options.identifier);
 };
 
 /**
@@ -4557,7 +4557,7 @@ Iban.isValid = function (iban) {
  * @returns {Boolean} true if it is, otherwise false
  */
 Iban.prototype.isValid = function () {
-    return /^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
+    return /^XE[0-9]{2}(MIT[0-9A-Z]{13}|[0-9A-Z]{30,31})$/.test(this._iban) &&
         mod9710(iso13616Prepare(this._iban)) === 1;
 };
 
@@ -5504,9 +5504,9 @@ Mit.prototype.contract = function (abi) {
     var factory = new Contract(this, abi);
     return factory;
 };
-
+//2018-07-03
 Mit.prototype.filter = function (options, callback, filterCreationErrorCallback) {
-    return new Filter(options, 'eth', this._requestManager, watches.eth(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
+    return new Filter(options, 'mit', this._requestManager, watches.mit(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
 };
 
 Mit.prototype.namereg = function () {
@@ -6481,7 +6481,7 @@ RequestManager.prototype.reset = function (keepIsSyncing) {
  */
 RequestManager.prototype.poll = function () {
     /*jshint maxcomplexity: 6 */
-    this.timeout = setTimeout(this.poll.bind(this), c.ETH_POLLING_TIMEOUT);
+    this.timeout = setTimeout(this.poll.bind(this), c.MIT_POLLING_TIMEOUT);
 
     if (Object.keys(this.polls).length === 0) {
         return;

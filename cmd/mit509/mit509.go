@@ -31,7 +31,7 @@ var (
 
 func main(){
 	x509_issuer := &mitx509.X509mit{}
-	x509_issuer = x509_issuer.GenCa(country,orgnazation,orgnazationalUnit);
-	fmt.Printf("%v",x509_issuer);
+	x509_issuer = x509_issuer.GenCa(country,orgnazation,orgnazationalUnit)
+	fmt.Printf("%v",x509_issuer)
 	return;
 }
