@@ -57,7 +57,7 @@ func (x *X509mit) GenCa(country []string, organization []string, organizationalU
 	}
 	priv_key := x509.MarshalPKCS1PrivateKey(priv)
 	x509 := &X509mit{pub_key,priv_key}
-	fmt.Printf("x509 %v",*x509);
+	fmt.Printf("x509 %v",*x509)
 	return x509
 }
 

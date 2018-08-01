@@ -12,6 +12,6 @@ RUN \
   rm -rf /go-mit
 
 EXPOSE 8545
-EXPOSE 30303
+EXPOSE 9999
 
 ENTRYPOINT ["/mit"]

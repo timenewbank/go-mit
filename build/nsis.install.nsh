@@ -24,14 +24,14 @@ Section "MIT" GMIT_IDX
   createShortCut "$SMPROGRAMS\${APPNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "" ""
 
   # Firewall - remove rules (if exists)
-  SimpleFC::AdvRemoveRule "mit incoming peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "mit outgoing peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "mit UDP discovery (UDP:30303)"
+  SimpleFC::AdvRemoveRule "mit incoming peers (TCP:9999)"
+  SimpleFC::AdvRemoveRule "mit outgoing peers (TCP:9999)"
+  SimpleFC::AdvRemoveRule "mit UDP discovery (UDP:9999)"
 
   # Firewall - add rules
-  SimpleFC::AdvAddRule "mit incoming peers (TCP:30303)" ""  6 1 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" 30303 "" "" ""
-  SimpleFC::AdvAddRule "mit outgoing peers (TCP:30303)" ""  6 2 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" "" 30303 "" ""
-  SimpleFC::AdvAddRule "mit UDP discovery (UDP:30303)" "" 17 2 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" "" 30303 "" ""
+  SimpleFC::AdvAddRule "mit incoming peers (TCP:9999)" ""  6 1 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" 9999 "" "" ""
+  SimpleFC::AdvAddRule "mit outgoing peers (TCP:9999)" ""  6 2 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" "" 9999 "" ""
+  SimpleFC::AdvAddRule "mit UDP discovery (UDP:9999)" "" 17 2 1 2147483647 1 "$INSTDIR\gmit.exe" "" "" "Mit" "" 9999 "" ""
 
   # Set default IPC endpoint (https://github.com/timenewbank/EIPs/issues/147)
   ${EnvVarUpdate} $0 "ETHEREUM_SOCKET" "R" "HKLM" "\\.\pipe\mit.ipc"

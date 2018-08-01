@@ -9,6 +9,6 @@ RUN \
   rm -rf /go-mit && rm -rf /var/cache/apk/*
 
 EXPOSE 8545
-EXPOSE 30303
+EXPOSE 9999
 
 ENTRYPOINT ["/mit"]

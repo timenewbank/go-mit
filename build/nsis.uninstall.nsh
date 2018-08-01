@@ -17,9 +17,9 @@ Section "Uninstall"
   rmDir "$SMPROGRAMS\${APPNAME}"
 
   # Firewall - remove rules if exists
-  SimpleFC::AdvRemoveRule "MIT incoming peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "MIT outgoing peers (TCP:30303)"
-  SimpleFC::AdvRemoveRule "MIT UDP discovery (UDP:30303)"
+  SimpleFC::AdvRemoveRule "MIT incoming peers (TCP:9999)"
+  SimpleFC::AdvRemoveRule "MIT outgoing peers (TCP:9999)"
+  SimpleFC::AdvRemoveRule "MIT UDP discovery (UDP:9999)"
 
   # Remove IPC endpoint (https://github.com/timenewbank/EIPs/issues/147)
   ${un.EnvVarUpdate} $0 "ETHEREUM_SOCKET" "R" "HKLM" "\\.\pipe\mit.ipc"

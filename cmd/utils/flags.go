@@ -457,7 +457,7 @@ var (
 	ListenPortFlag = cli.IntFlag{
 		Name:  "port",
 		Usage: "Network listening port",
-		Value: 30303,
+		Value: 9999,
 	}
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
@@ -1025,11 +1025,14 @@ func SetMitConfig(ctx *cli.Context, stack *node.Node, cfg *mit.Config) {
 
 	switch {
 	case ctx.GlobalIsSet(SyncModeFlag.Name):
-		cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
+		cfg.SyncMode = downloader.FullSync
+		//cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
 	case ctx.GlobalBool(FastSyncFlag.Name):
-		cfg.SyncMode = downloader.FastSync
+		//cfg.SyncMode = downloader.FastSync
+		cfg.SyncMode = downloader.FullSync
 	case ctx.GlobalBool(LightModeFlag.Name):
-		cfg.SyncMode = downloader.LightSync
+		//cfg.SyncMode = downloader.LightSync
+		cfg.SyncMode = downloader.FullSync
 	}
 	if ctx.GlobalIsSet(LightServFlag.Name) {
 		cfg.LightServ = ctx.GlobalInt(LightServFlag.Name)
