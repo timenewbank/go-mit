@@ -41,7 +41,7 @@ $ mit console
 ```
 #### Running a miner
 
-Currently our main network is based on POW+POS. So the miners can only mining after getting permission from us.
+Currently our main network is based on POW+POS.
 
 This command will:
 
