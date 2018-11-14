@@ -40,6 +40,11 @@ var (
 	ByzantiumBlockReward   *big.Int = big.NewInt(3e+18) // Block reward in wei for successfully mining a block upward from Byzantium
 	maxUncles                       = 2                 // Maximum number of uncles allowed in a single block
 	allowedFutureBlockTime          = 15 * time.Second  // Max time from current time allowed for blocks, before they're considered future blocks
+
+	//add the new params
+	BaseBlockNumber		*big.Int=big.NewInt(3200000) //for pow+pos block epoch number
+	BaseBlockRewardString string="12500000000000000000" //for baseBlockReward
+
 )
 
 // Various error messages to mark blocks invalid. These should be private to
@@ -535,7 +540,7 @@ var (
 func accumulateRewards(config *params.ChainConfig, state *state.StateDB, header *types.Header, uncles []*types.Header) {
 	// Select the correct block reward based on chain progression
 	//blockReward := FrontierBlockReward
-	blockReward := common.Big0
+	blockReward := accumulateRewardsVAlue(header.Number)
 	//if config.IsByzantium(header.Number) {
 	//	//blockReward = ByzantiumBlockReward
 	//	blockReward = common.Big0
@@ -558,6 +563,46 @@ func accumulateRewards(config *params.ChainConfig, state *state.StateDB, header 
 
 
 
+
+/**
+reward for tnb
+ */
+func accumulateRewardsVAlue(blockNumber *big.Int) *big.Int {
+	baseBlockReward,_:=new(big.Int).SetString(BaseBlockRewardString,10)  //baseReward for tnb
+	//set the blockreward
+	blockReward := baseBlockReward
+	//start reward minus
+	startEpoch:=big.NewInt(0)
+	blockEpoch:=big.NewInt(0)
+	//sub 1
+	usedBlockNumber:=big.NewInt(0)
+	if blockNumber.Cmp(big.NewInt(1))>0{
+		usedBlockNumber.Sub(blockNumber,big.NewInt(1))
+	}else{
+		usedBlockNumber.Add(blockNumber,usedBlockNumber)
+	}
+
+	blockEpoch.Div(usedBlockNumber,BaseBlockNumber)
+	m:=big.NewInt(10)
+	z:=big.NewInt(8)
+	modReward:=big.NewInt(0)
+	if blockEpoch.Cmp(startEpoch)>0{
+		y:=big.NewInt(0)
+		y.Sub(blockEpoch,startEpoch)
+		z=z.Exp(z,y,nil)
+		m=m.Exp(m,y,nil)
+		halfM:=big.NewInt(0)
+		halfM.Div(m,big.NewInt(2))
+		blockReward=blockReward.Mul(blockReward,z)
+		blockReward,modReward=blockReward.DivMod(blockReward,m,m)
+		if modReward.Cmp(halfM)>0{
+			blockReward=blockReward.Add(blockReward,big.NewInt(1))
+		}
+	}
+
+	reward := new(big.Int).Set(blockReward)
+	return reward
+}
 
 
 
@@ -591,7 +636,7 @@ func (mithash *Mithash) VerifyPOSPOWSeal(chain consensus.ChainReader, header *ty
 	}
 	digest, result := hashimotoLight(size, cache.cache, header.HashNoNonce().Bytes(), header.Nonce.Uint64())
 	//pos result
-	posResult:=posMine(header.Nonce.Uint64(),header.Hash().Bytes(),header.Time,header.ParentHash,header.UncleHash)
+	posResult:=posMine(header.Nonce.Uint64(),header.HashNoNonce().Bytes(),header.Time,header.ParentHash,header.UncleHash)
 	// Caches are unmapped in a finalizer. Ensure that the cache stays live
 	// until after the call to hashimotoLight so it's not unmapped while being used.
 	runtime.KeepAlive(cache)
@@ -610,13 +655,17 @@ func (mithash *Mithash) VerifyPOSPOWSeal(chain consensus.ChainReader, header *ty
 	//}
 	chainBalanceValue:=chain.GetBalance(usedHeader.Root,header.Coinbase)
 
-
 	balanceValue:=chainBalanceValue
 	balanceTarget:=new(big.Int).Mul(balanceValue,big.NewInt(1))
 	//if the result <=0 give the smallest 1
 	balanceTarget=balanceTarget.Div(balanceTarget,big.NewInt(1000000000000000000))
 	if balanceTarget.Cmp(common.Big0)<=0{
 		balanceTarget=common.Big1
+	}
+
+	balanceForLimit:=limitBalance(header.Number)
+	if balanceTarget.Cmp(balanceForLimit)<0{
+		return errInvalidPoW
 	}
 
 	target := new(big.Int).Div(maxUint256, header.Difficulty)

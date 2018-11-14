@@ -16,6 +16,21 @@ mit:
 	@echo "Done building."
 	@echo "Run \"$(GOBIN)/mit\" to launch mit."
 
+createpx509:
+	build/env.sh go run build/ci.go install ./cmd/createpx509
+	@echo "Done building."
+	@echo "Run \"$(GOBIN)/createpx509\" to use createpx509."
+
+readx509:
+	build/env.sh go run build/ci.go install ./cmd/readx509
+	@echo "Done building."
+	@echo "Run \"$(GOBIN)/readx509\" to use readx509."
+
+x509cert:
+	build/env.sh go run build/ci.go install ./cmd/x509cert
+	@echo "Done building."
+	@echo "Run \"$(GOBIN)/x509cert\" to use x509cert."
+
 puppeth:
 	build/env.sh go run build/ci.go install ./cmd/puppeth
 	@echo "Done building."

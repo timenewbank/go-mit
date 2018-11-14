@@ -322,7 +322,7 @@ func (s *Mitereum) Etherbase() (eb common.Address, err error) {
 			return etherbase, nil
 		}
 	}
-	return common.Address{}, fmt.Errorf("etherbase must be explicitly specified")
+	return common.Address{}, fmt.Errorf("Mitbase must be explicitly specified")
 }
 
 // SetEtherbase sets the mining reward address.
@@ -337,13 +337,13 @@ func (s *Mitereum) SetEtherbase(etherbase common.Address) {
 func (s *Mitereum) StartMining(local bool) error {
 	eb, err := s.Etherbase()
 	if err != nil {
-		log.Error("Cannot start mining without etherbase", "err", err)
-		return fmt.Errorf("etherbase missing: %v", err)
+		log.Error("Cannot start mining without Mitbase", "err", err)
+		return fmt.Errorf("Mitbase missing: %v", err)
 	}
 	if clique, ok := s.engine.(*clique.Clique); ok {
 		wallet, err := s.accountManager.Find(accounts.Account{Address: eb})
 		if wallet == nil || err != nil {
-			log.Error("Etherbase account unavailable locally", "err", err)
+			log.Error("Mitbase account unavailable locally", "err", err)
 			return fmt.Errorf("signer missing: %v", err)
 		}
 		clique.Authorize(eb, wallet.SignHash)

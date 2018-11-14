@@ -49,7 +49,7 @@ var DefaultConfig = Config{
 	DatabaseCache: 768,
 	TrieCache:     256,
 	TrieTimeout:   5 * time.Minute,
-	GasPrice:      big.NewInt(18000 * params.Shannon),//18
+	GasPrice:      big.NewInt(1800 * params.Shannon),//18000-1800
 
 	TxPool: core.DefaultTxPoolConfig,
 	GPO: gasprice.Config{

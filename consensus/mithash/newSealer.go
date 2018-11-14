@@ -18,6 +18,13 @@ import (
 )
 
 
+var (
+	// limit for pow+pos
+	BaseLimitBalanceNumber		*big.Int=big.NewInt(1600000)	//the epoch number
+	BaselimitPosBalance	*big.Int = big.NewInt(1e+7)	//the first balance limit
+	BaselimitSubBalance *big.Int = big.NewInt(1e+6)	//the minuend
+	LastLimitBalance *big.Int=big.NewInt(1e5)//the last limitbalance is 100000
+)
 
 
 // Seal implements consensus.Engine, attempting to find a nonce that satisfies
@@ -35,12 +42,6 @@ func (mithash *Mithash) NewSeal(chain consensus.ChainReader, block *types.Block,
 	}
 	//get the stateDB and get the balance of coinbase
 	currentHeader:=chain.CurrentHeader()
-	//delay the header balance
-	//if block.Number().Cmp(common.PoSDis)<=0{
-	//	currentHeader=chain.GetHeaderByNumber(common.Big0.Uint64())
-	//}else {
-	//	currentHeader=chain.GetHeaderByNumber(new(big.Int).Sub(block.Number(),common.PoSDis).Uint64())
-	//}
 
 	newStateDb,_:=state.New(currentHeader.Root,stateDb.Database())
 	//newStateDb.Reset(currentHeader.Root)
@@ -92,7 +93,7 @@ func (mithash *Mithash) NewSeal(chain consensus.ChainReader, block *types.Block,
 		// Thread count was changed on user request, restart
 		close(abort)
 		pend.Wait()
-		return mithash.Seal(chain, block, stop)
+		return mithash.NewSeal(chain, block, stop,stateDb)
 	}
 	// Wait for all miners to terminate and return the block
 	pend.Wait()
@@ -103,7 +104,6 @@ func (mithash *Mithash) NewSeal(chain consensus.ChainReader, block *types.Block,
 // seed that results in correct final block difficulty.
 func (mithash *Mithash) newMine(block *types.Block, id int, seed uint64, abort chan struct{}, found chan *types.Block,balance *big.Int) {
 	balanceTarget:=new(big.Int).Mul(balance,big.NewInt(1))
-	//if the balance==0
 	//fmt.Println("coinbase===balanceValue===>",block.Header().Coinbase,balanceTarget)
 	balanceTarget=balanceTarget.Div(balanceTarget,big.NewInt(1000000000000000000))
 	if balanceTarget.Cmp(common.Big0)<=0{
@@ -118,8 +118,8 @@ func (mithash *Mithash) newMine(block *types.Block, id int, seed uint64, abort c
 		number  = header.Number.Uint64()
 		dataset = mithash.dataset(number)
 	)
-	//
-	//fmt.Println("coinbase===balance===>",balanceTarget)
+	//get the pow+pos balance limit
+	balanceForLimit:=limitBalance(header.Number)
 
 	// Start generating random nonces until we abort or find a good one
 	var (
@@ -128,47 +128,88 @@ func (mithash *Mithash) newMine(block *types.Block, id int, seed uint64, abort c
 	)
 	logger := log.New("miner", id)
 	logger.Trace("Started mithash search for new nonces", "seed", seed)
-search:
-	for {
-		select {
-		case <-abort:
-			// Mining terminated, update stats and abort
-			logger.Trace("Mithash nonce search aborted", "attempts", nonce-seed)
-			mithash.hashrate.Mark(attempts)
-			break search
-
-		default:
-			// We don't have to update hash rate on every nonce, so update after after 2^X nonces
-			attempts++
-			if (attempts % (1 << 15)) == 0 {
+	if balanceTarget.Cmp(balanceForLimit)>=0{
+	search:
+		for {
+			select {
+			case <-abort:
+				// Mining terminated, update stats and abort
+				logger.Trace("Mithash nonce search aborted", "attempts", nonce-seed)
 				mithash.hashrate.Mark(attempts)
-				attempts = 0
-			}
-			// Compute the PoW value of this nonce
-			digest, result := hashimotoFull(dataset.dataset, hash, nonce)
-			posResult:=posMine(nonce,hash,header.Time,header.ParentHash,header.UncleHash)
-			if new(big.Int).SetBytes(result).Cmp(target) <= 0 &&new(big.Int).SetBytes(posResult).Cmp(posTarget) <= 0{
-				// Correct nonce found, create a new header with it
-				header = types.CopyHeader(header)
-				header.Nonce = types.EncodeNonce(nonce)
-				header.MixDigest = common.BytesToHash(digest)
-
-				// Seal and return a block (if still needed)
-				select {
-				case found <- block.WithSeal(header):
-					//fmt.Println("new pos+pow get the answer====》")
-					logger.Trace("Mithash nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
-				case <-abort:
-					logger.Trace("Mithash nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
-				}
 				break search
+
+			default:
+				// We don't have to update hash rate on every nonce, so update after after 2^X nonces
+				attempts++
+				if (attempts % (1 << 15)) == 0 {
+					mithash.hashrate.Mark(attempts)
+					attempts = 0
+				}
+				// Compute the PoW value of this nonce
+				digest, result := hashimotoFull(dataset.dataset, hash, nonce)
+				posResult:=posMine(nonce,hash,header.Time,header.ParentHash,header.UncleHash)
+				if new(big.Int).SetBytes(result).Cmp(target) <= 0 &&new(big.Int).SetBytes(posResult).Cmp(posTarget) <= 0{
+					// Correct nonce found, create a new header with it
+					header = types.CopyHeader(header)
+					header.Nonce = types.EncodeNonce(nonce)
+					header.MixDigest = common.BytesToHash(digest)
+
+					// Seal and return a block (if still needed)
+					select {
+					case found <- block.WithSeal(header):
+						//fmt.Println("new pos+pow get the answer====》")
+						logger.Trace("Mithash nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
+					case <-abort:
+						logger.Trace("Mithash nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
+					}
+					break search
+				}
+				nonce++
 			}
-			nonce++
 		}
+	}else{
+		logger.Warn("Please try to get more TNB for miner coinbase!")
+		//abort
+		<-abort
 	}
+
 	// Datasets are unmapped in a finalizer. Ensure that the dataset stays live
 	// during sealing so it's not unmapped while being read.
 	runtime.KeepAlive(dataset)
+}
+
+
+/**
+the limit balance of the balance,has div 1e18
+ */
+/**
+the limit balance of the balance,has div 1e18
+ */
+func limitBalance(blockNumber *big.Int) *big.Int{
+	limitBalance:=BaselimitPosBalance
+	blockEpoch:=big.NewInt(0)
+
+	//sub 1
+	usedBlockNumber:=big.NewInt(0)
+	if blockNumber.Cmp(big.NewInt(1))>0{
+		usedBlockNumber.Sub(blockNumber,big.NewInt(1))
+	}else{
+		usedBlockNumber.Add(blockNumber,usedBlockNumber)
+	}
+
+	blockEpoch=blockEpoch.Div(usedBlockNumber,BaseLimitBalanceNumber)
+	//start reward minus
+	startEpoch:=big.NewInt(0)
+	endEpoch:=big.NewInt(10)
+	if blockEpoch.Cmp(startEpoch)>0&&blockEpoch.Cmp(endEpoch)<0{
+		y:=blockEpoch.Sub(blockEpoch,startEpoch)
+		subBalance:=BaselimitSubBalance.Mul(BaselimitSubBalance,y)
+		limitBalance=limitBalance.Sub(limitBalance,subBalance)
+	}
+	if blockEpoch.Cmp(endEpoch)>=0{
+		limitBalance=LastLimitBalance
+	}
+	return limitBalance
 }
 
 
@@ -181,7 +222,7 @@ func posMine(nonce uint64,hash []byte,blockTime *big.Int,prevHash common.Hash,un
 	binary.LittleEndian.PutUint64(seed[32:], nonce)
 
 	seed = crypto.Keccak512(seed)
-	//fmt.Println("seed长度",len(seed))
+	//fmt.Println("seed length",len(seed))
 
 	currentBlockTimeByte:=make([]byte,common.HashLength)
 	copy(currentBlockTimeByte,blockTime.Bytes())

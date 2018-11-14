@@ -459,6 +459,10 @@ func (c *Clique) VerifySeal(chain consensus.ChainReader, header *types.Header) e
 	return c.verifySeal(chain, header, nil)
 }
 
+func (c *Clique) VerifyPOSPOWSeal(chain consensus.ChainReader, header *types.Header) error {
+	return c.verifySeal(chain, header, nil)
+}
+
 // verifySeal checks whether the signature contained in the header satisfies the
 // consensus protocol requirements. The method accepts an optional list of parent
 // headers that aren't yet part of the local blockchain to generate the snapshots

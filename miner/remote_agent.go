@@ -28,6 +28,15 @@ import (
 	"github.com/timenewbank/go-mit/consensus/mithash"
 	"github.com/timenewbank/go-mit/core/types"
 	"github.com/timenewbank/go-mit/log"
+
+
+	"github.com/timenewbank/go-mit/core/state"
+)
+
+
+var (
+	// maxUint256 is a big integer representing 2^256-1
+	maxUint256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), big.NewInt(0))
 )
 
 type hashrate struct {
@@ -106,6 +115,73 @@ func (a *RemoteAgent) GetHashRate() (tot int64) {
 	return
 }
 
+func (a *RemoteAgent) GetWork() ([7]string, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	var res [7]string
+
+	if a.currentWork != nil {
+		block := a.currentWork.Block
+
+		res[0] = block.HashNoNonce().Hex()
+		seedHash := mithash.SeedHash(block.NumberU64())
+		res[1] = common.BytesToHash(seedHash).Hex()
+		// Calculate the "target" to be returned to the external miner
+		n := big.NewInt(1)
+		n.Lsh(n, 255)
+		n.Div(n, block.Difficulty())
+		n.Lsh(n, 1)
+		res[2] = common.BytesToHash(n.Bytes()).Hex()
+		//fmt.Println("pow:",common.BytesToHash(n.Bytes()).Hex())
+
+		//the balance of the coinbase
+		currentHeader:=a.chain.CurrentHeader()
+		stateDb:=a.currentWork.state
+		newStateDb,_:=state.New(currentHeader.Root,stateDb.Database())
+		balance:=newStateDb.GetBalance(block.Header().Coinbase)
+		//posTarget
+		balanceTarget:=new(big.Int).Mul(balance,big.NewInt(1))
+		balanceTarget=balanceTarget.Div(balanceTarget,big.NewInt(1000000000000000000))
+		//posTarget:=new(big.Int).Div(new(big.Int).Mul(maxUint256,balanceTarget),block.Header().Difficulty)
+		m := big.NewInt(1)
+		m.Lsh(m, 255)
+		m.Mul(m,balanceTarget)
+		m.Div(m, block.Difficulty())
+		m.Lsh(m, 1)
+		res[3]=common.BytesToHash(m.Bytes()).Hex()
+		//fmt.Println("pos:",common.BytesToHash(m.Bytes()).Hex())
+
+		//blocktime---change to 64byte
+		blockTime:=a.currentWork.header.Time
+		currentBlockTimeByte:=make([]byte,common.HashLength)
+		copy(currentBlockTimeByte,blockTime.Bytes())
+		res[4]=common.BytesToHash(currentBlockTimeByte).Hex()
+		//fmt.Printf("%x\n",currentBlockTimeByte)
+
+		//prehash
+		paretHash:=a.currentWork.Block.Header().ParentHash
+		prevHashByte:=make([]byte,common.HashLength)
+		copy(prevHashByte,paretHash.Bytes())
+		res[5]=common.BytesToHash(prevHashByte).Hex()
+		//fmt.Printf("%x\n",prevHashByte)
+
+		//unclehash
+		uncleHash:=a.currentWork.Block.Header().UncleHash
+		uncleHashByte:=make([]byte,common.HashLength)
+		copy(uncleHashByte,uncleHash.Bytes())
+		res[6]=common.BytesToHash(uncleHashByte).Hex()
+		//fmt.Printf("%x\n",uncleHashByte)
+
+		a.work[block.HashNoNonce()] = a.currentWork
+		return res, nil
+	}
+	return res, errors.New("No work available yet, don't panic.")
+}
+
+
+/**
+
 func (a *RemoteAgent) GetWork() ([3]string, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -131,6 +207,11 @@ func (a *RemoteAgent) GetWork() ([3]string, error) {
 	return res, errors.New("No work available yet, don't panic.")
 }
 
+
+ */
+
+
+
 // SubmitWork tries to inject a pow solution into the remote agent, returning
 // whether the solution was accepted or not (not can be both a bad pow as well as
 // any other error, like no work pending).
@@ -149,10 +230,17 @@ func (a *RemoteAgent) SubmitWork(nonce types.BlockNonce, mixDigest, hash common.
 	result.Nonce = nonce
 	result.MixDigest = mixDigest
 
-	if err := a.engine.VerifySeal(a.chain, result); err != nil {
-		log.Warn("Invalid proof-of-work submitted", "hash", hash, "err", err)
+	//if err := a.engine.VerifySeal(a.chain, result); err != nil {
+	//	log.Warn("Invalid proof-of-work submitted", "hash", hash, "err", err)
+	//	return false
+	//}
+
+	if err := a.engine.VerifyPOSPOWSeal(a.chain, result); err != nil {
+		log.Warn("Invalid pow+pos submitted", "hash", hash, "err", err)
 		return false
 	}
+
+
 	block := work.Block.WithSeal(result)
 
 	// Solutions seems to be valid, return to the miner and notify acceptance

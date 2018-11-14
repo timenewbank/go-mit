@@ -100,6 +100,13 @@ type Engine interface {
 
 	// APIs returns the RPC APIs this consensus engine provides.
 	APIs(chain ChainReader) []rpc.API
+
+	// VerifySeal checks whether the crypto seal on a header is valid according to
+	// the consensus rules of the given engine.
+	VerifyPOSPOWSeal(chain ChainReader, header *types.Header) error
+
+
+
 }
 
 // PoW is a consensus engine based on proof-of-work.
