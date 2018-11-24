@@ -13,7 +13,7 @@ func main() {
 
 	certPath:=flag.String( "F","","input the certPath")
 	rootPath:=flag.String("RF","","input the rootCertPath")
-	getCABool:=flag.Bool("IsCA",false,"isCA")
+	getCABool:=flag.Bool("isCA",false,"isCA")
 	flag.Parse()
 
 	//dir info
@@ -21,11 +21,12 @@ func main() {
 		log.Panic("no filepath")
 	}
 
+
 	crtString:=x509.ReadFile(filepath.Join(*certPath))
 	crtA,_:=x509.ParseCrtString(crtString)
 	//fmt.Println("name====>",crtA.Subject.CommonName)
 
-	if !*getCABool{
+	if *getCABool{
 		if *rootPath==""{
 			log.Panic("no filepath")
 		}

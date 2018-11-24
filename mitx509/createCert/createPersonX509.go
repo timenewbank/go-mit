@@ -21,7 +21,7 @@ func main() {
 	getKeyName:=flag.String("KeyN","","input the KeyName")
 	getRootPath:=flag.String("R","","input the RootCertPath")
 	getRootKeyPath:=flag.String("RK","","input RootKeyPath")
-	getCABool:=flag.Bool("IsCA",false,"isCA")
+	getCABool:=flag.Bool("isCA",false,"isCA")
 
 	flag.Parse()
 

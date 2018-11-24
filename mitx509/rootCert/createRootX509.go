@@ -30,13 +30,13 @@ func main() {
 	}
 	//root info
 	rootInfo := x509.CertInfo{
-		Country: []string{"CN"},
-		Organization: []string{"WS"},
+		Country: []string{"SGP"},
+		Organization: []string{"MiaoA Fundation"},
 		IsCA: true,
 		OrganizationalUnit: []string{"M.I.T"},
-		EmailAddress: []string{"mitCert@163.com"},
-		Locality: []string{"SuZhou"},
-		Province: []string{"JiangSu"},
+		EmailAddress: []string{"contact@tnb.fund"},
+		Locality: []string{"SGP"},
+		Province: []string{"SGP"},
 		CommonName: "M.I.T Team",
 		CrtName: filepath.Join(certPath,x509.RootCrtName),
 		KeyName: filepath.Join(certPath,x509.RootKeyName)}
