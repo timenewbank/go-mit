@@ -690,5 +690,63 @@ func (c *Clique) APIs(chain consensus.ChainReader) []rpc.API {
 
 //add the newSeal method
 func (c *Clique) NewSeal(chain consensus.ChainReader, block *types.Block, stop <-chan struct{},stateDb *state.StateDB) (*types.Block, error) {
-	return nil,nil
+	header := block.Header()
+
+	// Sealing the genesis block is not supported
+	number := header.Number.Uint64()
+	if number == 0 {
+		return nil, errUnknownBlock
+	}
+	// For 0-period chains, refuse to seal empty blocks (no reward but would spin sealing)
+	if c.config.Period == 0 && len(block.Transactions()) == 0 {
+		return nil, errWaitTransactions
+	}
+	// Don't hold the signer fields for the entire sealing procedure
+	c.lock.RLock()
+	signer, signFn := c.signer, c.signFn
+	c.lock.RUnlock()
+
+	// Bail out if we're unauthorized to sign a block
+	snap, err := c.snapshot(chain, number-1, header.ParentHash, nil)
+	if err != nil {
+		return nil, err
+	}
+	if _, authorized := snap.Signers[signer]; !authorized {
+		return nil, errUnauthorized
+	}
+	// If we're amongst the recent signers, wait for the next block
+	for seen, recent := range snap.Recents {
+		if recent == signer {
+			// Signer is among recents, only wait if the current block doesn't shift it out
+			if limit := uint64(len(snap.Signers)/2 + 1); number < limit || seen > number-limit {
+				log.Info("Signed recently, must wait for others")
+				<-stop
+				return nil, nil
+			}
+		}
+	}
+	// Sweet, the protocol permits us to sign the block, wait for our time
+	delay := time.Unix(header.Time.Int64(), 0).Sub(time.Now()) // nolint: gosimple
+	if header.Difficulty.Cmp(diffNoTurn) == 0 {
+		// It's not our turn explicitly to sign, delay it a bit
+		wiggle := time.Duration(len(snap.Signers)/2+1) * wiggleTime
+		delay += time.Duration(rand.Int63n(int64(wiggle)))
+
+		log.Trace("Out-of-turn signing requested", "wiggle", common.PrettyDuration(wiggle))
+	}
+	log.Trace("Waiting for slot to sign and propagate", "delay", common.PrettyDuration(delay))
+
+	select {
+	case <-stop:
+		return nil, nil
+	case <-time.After(delay):
+	}
+	// Sign all the things!
+	sighash, err := signFn(accounts.Account{Address: signer}, sigHash(header).Bytes())
+	if err != nil {
+		return nil, err
+	}
+	copy(header.Extra[len(header.Extra)-extraSeal:], sighash)
+
+	return block.WithSeal(header), nil
 }

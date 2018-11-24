@@ -27,8 +27,9 @@ var MainnetBootnodes = []string{
 // TestnetBootnodes are the enode URLs of the P2P bootstrap nodes running on the
 // Mit test network.
 var TestnetBootnodes = []string{
-	"enode://ba5d98d5f5fdc4375eda94ea2665684a25c38ae6f4678d27aa9d1e40cc37f1b1f20d09f7c339facbfffa47b59dc0b9a59743df3710d94dfe181692b77e8171b8@103.211.167.5:9999",
-	"enode://cd11029b9eff87c4a81e5b56550cb41181621022a0b11ac2a623e079322cea27d8c016078ef5effdefcf357e0bb50f0f1436200241f1b1cefff416742aba9605@103.242.67.65:9999",
+	"enode://819656a6f60cda49fab06e04ac47f148fcb3a48cefec41e8e61795366c3771a514b1f267d62ae36230a96e665995530e34d639b0d27e1ff33ba5fa89e83a7549@103.242.67.65:9999",
+	"enode://bbf4ba9aeea72dd1235d83828cc21a498db9dd2f4c2de93da9f607fffb2ee9bba540606ff0b576212cc0aef7024ce92bed0f38b153be65ba81bfdf21a2a3f0ef@103.242.67.72:9999",
+	"enode://9ba2930e537939a981a5d908d96b45d8a7fb2c7364a3d0a7dc57686fa3c7d2ff5392eb015043f03e4e9d5a5b7f6e36cebf961fdd1072fc06473e6a11c779c6d9@103.242.67.72:9998",
 }
 
 var RinkebyBootnodes = []string{

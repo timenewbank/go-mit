@@ -1565,11 +1565,11 @@ func (bc *BlockChain) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscript
 
 
 
-// Add a new method -- getBalance
+//添加新方法--getBalance
 func (bc *BlockChain) GetBalance(root common.Hash,addr common.Address) *big.Int {
 	state,error:=state.New(root,bc.stateCache)
 	if error !=nil{
-		fmt.Println("Error Creating State ！！！！")
+		fmt.Println("create state error！")
 		return common.Big0
 	}
 	return state.GetBalance(addr)
