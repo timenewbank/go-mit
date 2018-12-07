@@ -13,7 +13,7 @@ func main() {
 
 	certPath:=flag.String( "F","","input the certPath")
 	rootPath:=flag.String("RF","","input the rootCertPath")
-	getCABool:=flag.Bool("isCA",false,"isCA")
+	getCABool:=flag.String("IsCA","no","isCA yes or no")
 	flag.Parse()
 
 	//dir info
@@ -26,7 +26,13 @@ func main() {
 	crtA,_:=x509.ParseCrtString(crtString)
 	//fmt.Println("name====>",crtA.Subject.CommonName)
 
-	if *getCABool{
+	//fmt.Println("isCA",*getCABool)
+
+	if *getCABool=="yes"{
+		bytes:=[]byte(crtString)
+		strHex:=hex.EncodeToString(bytes)
+		fmt.Println("0x"+strHex)
+	}else{
 		if *rootPath==""{
 			log.Panic("no filepath")
 		}
@@ -41,17 +47,7 @@ func main() {
 			strHex:=hex.EncodeToString(bytes)
 			fmt.Println("0x"+strHex)
 		}
-	}else{
-		bytes:=[]byte(crtString)
-		strHex:=hex.EncodeToString(bytes)
-		fmt.Println("0x"+strHex)
 	}
-
-
-
-
-
-
 }
 
 

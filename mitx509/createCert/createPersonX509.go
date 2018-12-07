@@ -9,6 +9,7 @@ import (
 	"github.com/timenewbank/go-mit/node"
 )
 
+var isCAFlag=false
 func main() {
 	getCountry:=flag.String("C","","input the Country")
 	getOrganization:=flag.String("OR","","input the Organization")
@@ -21,7 +22,7 @@ func main() {
 	getKeyName:=flag.String("KeyN","","input the KeyName")
 	getRootPath:=flag.String("R","","input the RootCertPath")
 	getRootKeyPath:=flag.String("RK","","input RootKeyPath")
-	getCABool:=flag.Bool("isCA",false,"isCA")
+	getCABool:=flag.String("IsCA","no","isCA yes or no")
 
 	flag.Parse()
 
@@ -63,12 +64,15 @@ func main() {
 		}
 	}
 
+	if *getCABool=="yes"{
+		isCAFlag=true
+	}
 
 	//root info
 	personInfo := x509.CertInfo{
 		Country: []string{*getCountry},
 		Organization: []string{*getOrganization},
-		IsCA: *getCABool,
+		IsCA: isCAFlag,
 		OrganizationalUnit: []string{*getOrganizationalUnit},
 		EmailAddress: []string{*getEmailAddress},
 		Locality: []string{*getLocality},

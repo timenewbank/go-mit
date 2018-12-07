@@ -186,7 +186,8 @@ the limit balance of the balance,has div 1e18
 the limit balance of the balance,has div 1e18
  */
 func limitBalance(blockNumber *big.Int) *big.Int{
-	limitBalance:=BaselimitPosBalance
+	limitBalance:=big.NewInt(0)
+	limitBalance.Add(BaselimitPosBalance,big.NewInt(0))
 	blockEpoch:=big.NewInt(0)
 
 	//sub 1
@@ -203,12 +204,13 @@ func limitBalance(blockNumber *big.Int) *big.Int{
 	endEpoch:=big.NewInt(10)
 	if blockEpoch.Cmp(startEpoch)>0&&blockEpoch.Cmp(endEpoch)<0{
 		y:=blockEpoch.Sub(blockEpoch,startEpoch)
-		subBalance:=BaselimitSubBalance.Mul(BaselimitSubBalance,y)
+		subBalance:=new(big.Int).Mul(BaselimitSubBalance,y)
 		limitBalance=limitBalance.Sub(limitBalance,subBalance)
 	}
 	if blockEpoch.Cmp(endEpoch)>=0{
 		limitBalance=LastLimitBalance
 	}
+
 	return limitBalance
 }
 
