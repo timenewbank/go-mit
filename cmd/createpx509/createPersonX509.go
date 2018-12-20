@@ -7,7 +7,6 @@ import (
 	x509 "github.com/timenewbank/go-mit/mitx509"
 	"flag"
 	"github.com/timenewbank/go-mit/node"
-	"fmt"
 )
 
 
