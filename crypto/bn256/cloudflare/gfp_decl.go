@@ -2,6 +2,12 @@
 
 package bn256
 
+import (
+	"golang.org/x/sys/cpu"
+)
+
+var hasBMI2 = cpu.X86.HasBMI2
+
 // This file contains forward declarations for the architecture-specific
 // assembly implementations of these functions, provided that they exist.
 
