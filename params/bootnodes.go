@@ -21,7 +21,7 @@ package params
 var MainnetBootnodes = []string{
 	//the main bootnode
 	"enode://2a1fa5fb68c68536e0ed9c20eabd64b749264bcb12be24130861139e02cbd6aeb2dadec34b201e803586c042c5807e82951b0d7a14c9cafe9626a7fca68f6183@106.2.11.139:9999",
-	"enode://880da7bfc175239d34d1a5b576e9cd54f24559ef4e9b35cd275942707fa77e0e109e5cc43f24e61e93fe8c392cdf9660389c5877c139183a836343d57b5b7379@103.242.67.59:9999",
+	"enode://935f96cffa35b251e0a40efdd9e4d4e71e0702f4b831ef088b485908c16d4a677b5533e7ea1eaef889ce04d493430e92eed5c76d719ad97d322ea07914da1cde@103.242.67.59:9999",
 }
 
 // TestnetBootnodes are the enode URLs of the P2P bootstrap nodes running on the
